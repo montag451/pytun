@@ -7,6 +7,15 @@ setup(name='pytun',
       maintainer_email='montag451 at laposte.net',
       url='https://github.com/montag451/pytun',
       description='Linux TUN/TAP wrapper for Python',
+      long_description=open('README.rst').read(),
       version='0.1',
-      ext_modules=[Extension('pytun', ['pytun.c'])])
-
+      ext_modules=[Extension('pytun', ['pytun.c'])],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Operating System :: POSIX :: Linux',
+          'Programming Language :: C',
+          'Programming Language :: Python',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+          'Topic :: System :: Networking'])
