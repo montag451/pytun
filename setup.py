@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-setup(name='pytun',
+setup(name='python-pytun',
       author='montag451',
       author_email='montag451 at laposte.net',
       maintainer='montag451',
