@@ -1,0 +1,8 @@
+build
+dist
+MANIFEST
+*.bak
+*.pyc
+*.o
+*.so
+*.swp
