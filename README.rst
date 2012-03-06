@@ -49,7 +49,7 @@ To read/write to the device, use the methods ``read(size)`` and
 ``write(buf)``::
 
     buf = tun.read(tun.mtu)
-    tun.send(buf)
+    tun.write(buf)
 
 When when you are done with a device, close it::
 
