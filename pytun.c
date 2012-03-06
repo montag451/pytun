@@ -61,7 +61,7 @@ static int if_ioctl(int cmd, struct ifreq* req)
 
 struct pytun_tuntap
 {
-	PyObject_HEAD
+    PyObject_HEAD
     int fd;
     char name[IFNAMSIZ];
 };
@@ -421,13 +421,13 @@ static int pytun_tuntap_set_mtu(PyObject* self, PyObject* value, void* d)
 
 static PyGetSetDef pytun_tuntap_prop[] =
 {
-	{"name", pytun_tuntap_get_name, NULL, NULL, NULL},
-	{"addr", pytun_tuntap_get_addr, pytun_tuntap_set_addr, NULL, NULL},
-	{"dstaddr", pytun_tuntap_get_dstaddr, pytun_tuntap_set_dstaddr, NULL, NULL},
-	{"hwaddr", pytun_tuntap_get_hwaddr, pytun_tuntap_set_hwaddr, NULL, NULL},
-	{"netmask", pytun_tuntap_get_netmask, pytun_tuntap_set_netmask, NULL, NULL},
-	{"mtu", pytun_tuntap_get_mtu, pytun_tuntap_set_mtu, NULL, NULL},
-	{NULL, NULL, NULL, NULL, NULL}
+    {"name", pytun_tuntap_get_name, NULL, NULL, NULL},
+    {"addr", pytun_tuntap_get_addr, pytun_tuntap_set_addr, NULL, NULL},
+    {"dstaddr", pytun_tuntap_get_dstaddr, pytun_tuntap_set_dstaddr, NULL, NULL},
+    {"hwaddr", pytun_tuntap_get_hwaddr, pytun_tuntap_set_hwaddr, NULL, NULL},
+    {"netmask", pytun_tuntap_get_netmask, pytun_tuntap_set_netmask, NULL, NULL},
+    {"mtu", pytun_tuntap_get_mtu, pytun_tuntap_set_mtu, NULL, NULL},
+    {NULL, NULL, NULL, NULL, NULL}
 };
 
 static PyObject* pytun_tuntap_close(PyObject* self)
@@ -503,43 +503,43 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
     unsigned int rdlen;
-	ssize_t outlen;
-	PyObject *buf;
+    ssize_t outlen;
+    PyObject *buf;
 
     if (!PyArg_ParseTuple(args, "I:read", &rdlen))
     {
         return NULL;
     }
 
-	/* Allocate a new string */
-	buf = PyString_FromStringAndSize(NULL, rdlen);
+    /* Allocate a new string */
+    buf = PyString_FromStringAndSize(NULL, rdlen);
     if (buf == NULL)
     {
         return NULL;
     }
 
-	/* Read data */
+    /* Read data */
     Py_BEGIN_ALLOW_THREADS
-	outlen = read(tuntap->fd, PyString_AS_STRING(buf), rdlen);
-	Py_END_ALLOW_THREADS
-	if (outlen < 0)
+    outlen = read(tuntap->fd, PyString_AS_STRING(buf), rdlen);
+    Py_END_ALLOW_THREADS
+    if (outlen < 0)
     {
-		/* An error occurred, release the string and return an error */
+        /* An error occurred, release the string and return an error */
         raise_error_from_errno();
-		Py_DECREF(buf);
-		return NULL;
-	}
-	if (outlen < rdlen)
+        Py_DECREF(buf);
+        return NULL;
+    }
+    if (outlen < rdlen)
     {
-		/* We did not read as many bytes as we anticipated, resize the
-		   string if possible and be successful. */
-		if (_PyString_Resize(&buf, outlen) < 0)
+        /* We did not read as many bytes as we anticipated, resize the
+           string if possible and be successful. */
+        if (_PyString_Resize(&buf, outlen) < 0)
         {
-			return NULL;
+            return NULL;
         }
-	}
+    }
 
-	return buf;
+    return buf;
 }
 
 PyDoc_STRVAR(pytun_tuntap_read_doc,
@@ -574,7 +574,7 @@ PyDoc_STRVAR(pytun_tuntap_write_doc,
 
 static PyObject* pytun_tuntap_fileno(PyObject* self)
 {
-	return PyInt_FromLong(((pytun_tuntap_t*)self)->fd);
+    return PyInt_FromLong(((pytun_tuntap_t*)self)->fd);
 }
 
 PyDoc_STRVAR(pytun_tuntap_fileno_doc,
@@ -588,7 +588,7 @@ static PyMethodDef pytun_tuntap_meth[] =
     {"read", (PyCFunction)pytun_tuntap_read, METH_VARARGS, pytun_tuntap_read_doc},
     {"write", (PyCFunction)pytun_tuntap_write, METH_VARARGS, pytun_tuntap_write_doc},
     {"fileno", (PyCFunction)pytun_tuntap_fileno, METH_NOARGS, pytun_tuntap_fileno_doc},
-	{NULL, NULL, 0, NULL}
+    {NULL, NULL, 0, NULL}
 };
 
 PyDoc_STRVAR(pytun_tuntap_doc,
@@ -596,35 +596,35 @@ PyDoc_STRVAR(pytun_tuntap_doc,
 
 static PyTypeObject pytun_tuntap_type =
 {
-	PyVarObject_HEAD_INIT(&PyType_Type, 0)
-	.tp_name = "pytun.TunTapDevice",
-	.tp_basicsize = sizeof(pytun_tuntap_t),
-	.tp_dealloc = pytun_tuntap_dealloc,
-	.tp_flags = Py_TPFLAGS_DEFAULT,
-	.tp_doc = pytun_tuntap_doc,
-	.tp_methods = pytun_tuntap_meth,
-	.tp_getset = pytun_tuntap_prop,
-	.tp_new = pytun_tuntap_new
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    .tp_name = "pytun.TunTapDevice",
+    .tp_basicsize = sizeof(pytun_tuntap_t),
+    .tp_dealloc = pytun_tuntap_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_doc = pytun_tuntap_doc,
+    .tp_methods = pytun_tuntap_meth,
+    .tp_getset = pytun_tuntap_prop,
+    .tp_new = pytun_tuntap_new
 };
 
 PyMODINIT_FUNC initpytun(void)
 {
-	PyObject* m;
+    PyObject* m;
     PyObject* pytun_error_dict;
 
-	m = Py_InitModule("pytun", NULL);
-	if (m == NULL)
+    m = Py_InitModule("pytun", NULL);
+    if (m == NULL)
     {
-		return;
+        return;
     }
 
-	if (PyType_Ready(&pytun_tuntap_type) != 0)
+    if (PyType_Ready(&pytun_tuntap_type) != 0)
     {
-		return;
+        return;
     }
-	if (PyModule_AddObject(m, "TunTapDevice", (PyObject*)&pytun_tuntap_type) != 0)
+    if (PyModule_AddObject(m, "TunTapDevice", (PyObject*)&pytun_tuntap_type) != 0)
     {
-		return;
+        return;
     }
 
     pytun_error_dict = Py_BuildValue("{ss}", "__doc__", pytun_error_doc);
@@ -632,15 +632,15 @@ PyMODINIT_FUNC initpytun(void)
     {
         return;
     }
-	pytun_error = PyErr_NewException("pytun.Error", PyExc_IOError, pytun_error_dict);
+    pytun_error = PyErr_NewException("pytun.Error", PyExc_IOError, pytun_error_dict);
     Py_DECREF(pytun_error_dict);
     if (pytun_error == NULL)
     {
         return;
     }
-	if (PyModule_AddObject(m, "Error", pytun_error) != 0)
+    if (PyModule_AddObject(m, "Error", pytun_error) != 0)
     {
-		return;
+        return;
     }
 
     PyModule_AddIntConstant(m, "IFF_TUN", IFF_TUN);
