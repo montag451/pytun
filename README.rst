@@ -40,8 +40,8 @@ To create a TUN/TAP device with a custom name use the ``name`` keyword::
 You can get/set some parameters of the device directly::
 
     print tun.name
-    tun.addr = '10.8.0.1
-    tun.dstaddr = '10.8.0.2
+    tun.addr = '10.8.0.1'
+    tun.dstaddr = '10.8.0.2'
     tun.netmask = '255.255.255.0'
     tun.mtu = 1500
 
