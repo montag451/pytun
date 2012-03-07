@@ -19,7 +19,7 @@ Standard Library.
 Examples
 --------
 
-NOTE: On most distributions you will need to be root to run this examples.
+NOTE: On most distributions you will need to be root to run these examples.
 
 To create a TUN device::
 
