@@ -622,6 +622,7 @@ PyMODINIT_FUNC initpytun(void)
     {
         return;
     }
+    Py_INCREF((PyObject*)&pytun_tuntap_type);
     if (PyModule_AddObject(m, "TunTapDevice", (PyObject*)&pytun_tuntap_type) != 0)
     {
         return;
@@ -638,6 +639,7 @@ PyMODINIT_FUNC initpytun(void)
     {
         return;
     }
+    Py_INCREF(pytun_error);
     if (PyModule_AddObject(m, "Error", pytun_error) != 0)
     {
         return;
