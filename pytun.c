@@ -13,6 +13,11 @@
 #include <linux/if_tun.h>
 #include <arpa/inet.h>
 
+#ifndef PyVarObject_HEAD_INIT
+#define PyVarObject_HEAD_INIT(type, size) \
+    PyObject_HEAD_INIT(type) size,
+#endif
+
 static PyObject* pytun_error;
 
 PyDoc_STRVAR(pytun_error_doc,
@@ -647,9 +652,17 @@ PyMODINIT_FUNC initpytun(void)
 
     PyModule_AddIntConstant(m, "IFF_TUN", IFF_TUN);
     PyModule_AddIntConstant(m, "IFF_TAP", IFF_TAP);
+#ifdef IFF_NO_PI
     PyModule_AddIntConstant(m, "IFF_NO_PI", IFF_NO_PI);
+#endif
+#ifdef IFF_ONE_QUEUE
     PyModule_AddIntConstant(m, "IFF_ONE_QUEUE", IFF_ONE_QUEUE);
+#endif
+#ifdef IFF_VNET_HDR
     PyModule_AddIntConstant(m, "IFF_VNET_HDR", IFF_VNET_HDR);
+#endif
+#ifdef IFF_TUN_EXCL
     PyModule_AddIntConstant(m, "IFF_TUN_EXCL", IFF_TUN_EXCL);
+#endif
 }
 
