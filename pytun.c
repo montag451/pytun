@@ -442,7 +442,7 @@ static PyObject* pytun_tuntap_close(PyObject* self)
     if (tuntap->fd >= 0)
     {
         Py_BEGIN_ALLOW_THREADS
-        close(tuntap->fd);
+        close(tuntap->fd), tuntap->fd = -1;
         Py_END_ALLOW_THREADS
     }
 
