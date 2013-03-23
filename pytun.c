@@ -18,10 +18,10 @@
     PyObject_HEAD_INIT(type) size,
 #endif
 
-static PyObject* pytun_error;
+static PyObject* pytun_error = NULL;
 
 PyDoc_STRVAR(pytun_error_doc,
-"This exception is raised when an error occurs.The accompanying value is\n\
+"This exception is raised when an error occurs. The accompanying value is\n\
 either a string telling what went wrong or a pair (errno, string)\n\
 representing an error returned by a system call, similar to the value\n\
 accompanying os.error. See the module errno, which contains names for the\n\
@@ -184,7 +184,11 @@ static PyObject* pytun_tuntap_get_name(PyObject* self, void* d)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
 
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(tuntap->name);
+#else
     return PyString_FromString(tuntap->name);
+#endif
 }
 
 static PyObject* pytun_tuntap_get_addr(PyObject* self, void* d)
@@ -206,20 +210,34 @@ static PyObject* pytun_tuntap_get_addr(PyObject* self, void* d)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(addr);
+#else
     return PyString_FromString(addr);
+#endif
 }
 
 static int pytun_tuntap_set_addr(PyObject* self, PyObject* value, void* d)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    int ret = 0;
     struct ifreq req;
+#if PY_MAJOR_VERSION >= 3
+    PyObject* tmp_addr;
+#endif
     const char* addr;
     struct sockaddr_in* sin;
 
+#if PY_MAJOR_VERSION >= 3
+    tmp_addr = PyUnicode_AsASCIIString(value);
+    addr = tmp_addr != NULL ? PyBytes_AS_STRING(tmp_addr) : NULL;
+#else
     addr = PyString_AsString(value);
+#endif
     if (addr == NULL)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
     memset(&req, 0, sizeof(req));
     strcpy(req.ifr_name, tuntap->name);
@@ -228,14 +246,21 @@ static int pytun_tuntap_set_addr(PyObject* self, PyObject* value, void* d)
     if (inet_aton(addr, &sin->sin_addr) < 0)
     {
         raise_error("Bad IP address");
-        return -1;
+        ret = -1;
+        goto out;
     }
     if (if_ioctl(SIOCSIFADDR, &req) < 0)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
 
-    return 0;
+out:
+#if PY_MAJOR_VERSION >= 3
+    Py_XDECREF(tmp_addr);
+#endif
+
+    return ret;
 }
 
 static PyObject* pytun_tuntap_get_dstaddr(PyObject* self, void* d)
@@ -257,20 +282,34 @@ static PyObject* pytun_tuntap_get_dstaddr(PyObject* self, void* d)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(dstaddr);
+#else
     return PyString_FromString(dstaddr);
+#endif
 }
 
 static int pytun_tuntap_set_dstaddr(PyObject* self, PyObject* value, void* d)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    int ret = 0;
     struct ifreq req;
+#if PY_MAJOR_VERSION >= 3
+    PyObject* tmp_dstaddr;
+#endif
     const char* dstaddr;
     struct sockaddr_in* sin;
 
+#if PY_MAJOR_VERSION >= 3
+    tmp_dstaddr = PyUnicode_AsASCIIString(value);
+    dstaddr = tmp_dstaddr != NULL ? PyBytes_AS_STRING(tmp_dstaddr) : NULL;
+#else
     dstaddr = PyString_AsString(value);
+#endif
     if (dstaddr == NULL)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
     memset(&req, 0, sizeof(req));
     strcpy(req.ifr_name, tuntap->name);
@@ -279,14 +318,21 @@ static int pytun_tuntap_set_dstaddr(PyObject* self, PyObject* value, void* d)
     if (inet_aton(dstaddr, &sin->sin_addr) < 0)
     {
         raise_error("Bad IP address");
-        return -1;
+        ret = -1;
+        goto out;
     }
     if (if_ioctl(SIOCSIFDSTADDR, &req) < 0)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
 
-    return 0;
+out:
+#if PY_MAJOR_VERSION >= 3
+    Py_XDECREF(tmp_dstaddr);
+#endif
+
+    return ret;
 }
 
 static PyObject* pytun_tuntap_get_hwaddr(PyObject* self, void* d)
@@ -301,7 +347,11 @@ static PyObject* pytun_tuntap_get_hwaddr(PyObject* self, void* d)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    return PyBytes_FromStringAndSize(req.ifr_hwaddr.sa_data, ETH_ALEN);
+#else
     return PyString_FromStringAndSize(req.ifr_hwaddr.sa_data, ETH_ALEN);
+#endif
 }
 
 static int pytun_tuntap_set_hwaddr(PyObject* self, PyObject* value, void* d)
@@ -311,7 +361,11 @@ static int pytun_tuntap_set_hwaddr(PyObject* self, PyObject* value, void* d)
     char* hwaddr;
     Py_ssize_t len;
 
+#if PY_MAJOR_VERSION >= 3
+    if (PyBytes_AsStringAndSize(value, &hwaddr, &len) == -1)
+#else
     if (PyString_AsStringAndSize(value, &hwaddr, &len) == -1)
+#endif
     {
         return -1;
     }
@@ -351,20 +405,34 @@ static PyObject* pytun_tuntap_get_netmask(PyObject* self, void* d)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(netmask);
+#else
     return PyString_FromString(netmask);
+#endif
 }
 
 static int pytun_tuntap_set_netmask(PyObject* self, PyObject* value, void* d)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    int ret = 0;
     struct ifreq req;
+#if PY_MAJOR_VERSION >= 3
+    PyObject* tmp_netmask;
+#endif
     const char* netmask;
     struct sockaddr_in* sin;
 
+#if PY_MAJOR_VERSION >= 3
+    tmp_netmask = PyUnicode_AsASCIIString(value);
+    netmask = tmp_netmask != NULL ? PyBytes_AS_STRING(tmp_netmask) : NULL;
+#else
     netmask = PyString_AsString(value);
+#endif
     if (netmask == NULL)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
     memset(&req, 0, sizeof(req));
     strcpy(req.ifr_name, tuntap->name);
@@ -373,14 +441,21 @@ static int pytun_tuntap_set_netmask(PyObject* self, PyObject* value, void* d)
     if (inet_aton(netmask, &sin->sin_addr) < 0)
     {
         raise_error("Bad IP address");
-        return -1;
+        ret = -1;
+        goto out;
     }
     if (if_ioctl(SIOCSIFNETMASK, &req) < 0)
     {
-        return -1;
+        ret = -1;
+        goto out;
     }
 
-    return 0;
+out:
+#if PY_MAJOR_VERSION >= 3
+    Py_XDECREF(tmp_netmask);
+#endif
+
+    return ret;
 }
 
 static PyObject* pytun_tuntap_get_mtu(PyObject* self, void* d)
@@ -395,7 +470,7 @@ static PyObject* pytun_tuntap_get_mtu(PyObject* self, void* d)
         return NULL;
     }
 
-    return PyInt_FromLong(req.ifr_mtu);
+    return PyLong_FromLong(req.ifr_mtu);
 }
 
 static int pytun_tuntap_set_mtu(PyObject* self, PyObject* value, void* d)
@@ -404,7 +479,7 @@ static int pytun_tuntap_set_mtu(PyObject* self, PyObject* value, void* d)
     struct ifreq req;
     int mtu;
 
-    mtu = PyInt_AsLong(value);
+    mtu = PyLong_AsLong(value);
     if (mtu <= 0)
     {
         if (!PyErr_Occurred())
@@ -517,7 +592,7 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
     }
 
     /* Allocate a new string */
-    buf = PyString_FromStringAndSize(NULL, rdlen);
+    buf = PyBytes_FromStringAndSize(NULL, rdlen);
     if (buf == NULL)
     {
         return NULL;
@@ -525,7 +600,7 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
 
     /* Read data */
     Py_BEGIN_ALLOW_THREADS
-    outlen = read(tuntap->fd, PyString_AS_STRING(buf), rdlen);
+    outlen = read(tuntap->fd, PyBytes_AS_STRING(buf), rdlen);
     Py_END_ALLOW_THREADS
     if (outlen < 0)
     {
@@ -538,7 +613,7 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
     {
         /* We did not read as many bytes as we anticipated, resize the
            string if possible and be successful. */
-        if (_PyString_Resize(&buf, outlen) < 0)
+        if (_PyBytes_Resize(&buf, outlen) < 0)
         {
             return NULL;
         }
@@ -571,7 +646,7 @@ static PyObject* pytun_tuntap_write(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    return PyInt_FromSsize_t(written);
+    return PyLong_FromSsize_t(written);
 }
 
 PyDoc_STRVAR(pytun_tuntap_write_doc,
@@ -579,7 +654,7 @@ PyDoc_STRVAR(pytun_tuntap_write_doc,
 
 static PyObject* pytun_tuntap_fileno(PyObject* self)
 {
-    return PyInt_FromLong(((pytun_tuntap_t*)self)->fd);
+    return PyLong_FromLong(((pytun_tuntap_t*)self)->fd);
 }
 
 PyDoc_STRVAR(pytun_tuntap_fileno_doc,
@@ -612,57 +687,117 @@ static PyTypeObject pytun_tuntap_type =
     .tp_new = pytun_tuntap_new
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef pytun_module =
+{
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "pytun",
+    .m_doc = NULL,
+    .m_size = -1,
+    .m_methods = NULL,
+    .m_reload = NULL,
+    .m_traverse = NULL,
+    .m_clear = NULL,
+    .m_free = NULL
+};
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC PyInit_pytun(void)
+#else
 PyMODINIT_FUNC initpytun(void)
+#endif
 {
     PyObject* m;
-    PyObject* pytun_error_dict;
+    PyObject* pytun_error_dict = NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&pytun_module);
+#else
     m = Py_InitModule("pytun", NULL);
+#endif
     if (m == NULL)
     {
-        return;
+        goto fail;
     }
 
     if (PyType_Ready(&pytun_tuntap_type) != 0)
     {
-        return;
+        goto fail;
     }
     Py_INCREF((PyObject*)&pytun_tuntap_type);
     if (PyModule_AddObject(m, "TunTapDevice", (PyObject*)&pytun_tuntap_type) != 0)
     {
-        return;
+        Py_DECREF((PyObject*)&pytun_tuntap_type);
+        goto fail;
     }
 
     pytun_error_dict = Py_BuildValue("{ss}", "__doc__", pytun_error_doc);
     if (pytun_error_dict == NULL)
     {
-        return;
+        goto fail;
     }
     pytun_error = PyErr_NewException("pytun.Error", PyExc_IOError, pytun_error_dict);
     Py_DECREF(pytun_error_dict);
     if (pytun_error == NULL)
     {
-        return;
+        goto fail;
     }
     Py_INCREF(pytun_error);
     if (PyModule_AddObject(m, "Error", pytun_error) != 0)
     {
-        return;
+        Py_DECREF(pytun_error);
+        goto fail;
     }
 
-    PyModule_AddIntConstant(m, "IFF_TUN", IFF_TUN);
-    PyModule_AddIntConstant(m, "IFF_TAP", IFF_TAP);
+    if (PyModule_AddIntConstant(m, "IFF_TUN", IFF_TUN) != 0)
+    {
+        goto fail;
+    }
+    if (PyModule_AddIntConstant(m, "IFF_TAP", IFF_TAP) != 0)
+    {
+        goto fail;
+    }
 #ifdef IFF_NO_PI
-    PyModule_AddIntConstant(m, "IFF_NO_PI", IFF_NO_PI);
+    if (PyModule_AddIntConstant(m, "IFF_NO_PI", IFF_NO_PI) != 0)
+    {
+        goto fail;
+    }
 #endif
 #ifdef IFF_ONE_QUEUE
-    PyModule_AddIntConstant(m, "IFF_ONE_QUEUE", IFF_ONE_QUEUE);
+    if (PyModule_AddIntConstant(m, "IFF_ONE_QUEUE", IFF_ONE_QUEUE) != 0)
+    {
+        goto fail;
+    }
 #endif
 #ifdef IFF_VNET_HDR
-    PyModule_AddIntConstant(m, "IFF_VNET_HDR", IFF_VNET_HDR);
+    if (PyModule_AddIntConstant(m, "IFF_VNET_HDR", IFF_VNET_HDR) != 0)
+    {
+        goto fail;
+    }
 #endif
 #ifdef IFF_TUN_EXCL
-    PyModule_AddIntConstant(m, "IFF_TUN_EXCL", IFF_TUN_EXCL);
+    if (PyModule_AddIntConstant(m, "IFF_TUN_EXCL", IFF_TUN_EXCL) != 0)
+    {
+        goto fail;
+    }
+#endif
+
+    goto out;
+
+fail:
+#if PY_MAJOR_VERSION >= 3
+    Py_XDECREF(pytun_error);
+    Py_XDECREF(m);
+    pytun_error = NULL;
+    m = NULL;
+#endif
+
+out:
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#else
+    return;
 #endif
 }
 
