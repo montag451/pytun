@@ -592,7 +592,11 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
     }
 
     /* Allocate a new string */
+#if PY_MAJOR_VERSION >= 3
     buf = PyBytes_FromStringAndSize(NULL, rdlen);
+#else
+    buf = PyString_FromStringAndSize(NULL, rdlen);
+#endif
     if (buf == NULL)
     {
         return NULL;
@@ -600,7 +604,11 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
 
     /* Read data */
     Py_BEGIN_ALLOW_THREADS
+#if PY_MAJOR_VERSION >= 3
     outlen = read(tuntap->fd, PyBytes_AS_STRING(buf), rdlen);
+#else
+    outlen = read(tuntap->fd, PyString_AS_STRING(buf), rdlen);
+#endif
     Py_END_ALLOW_THREADS
     if (outlen < 0)
     {
@@ -613,7 +621,11 @@ static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
     {
         /* We did not read as many bytes as we anticipated, resize the
            string if possible and be successful. */
+#if PY_MAJOR_VERSION >= 3
         if (_PyBytes_Resize(&buf, outlen) < 0)
+#else
+        if (_PyString_Resize(&buf, outlen) < 0)
+#endif
         {
             return NULL;
         }
