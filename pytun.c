@@ -470,7 +470,11 @@ static PyObject* pytun_tuntap_get_mtu(PyObject* self, void* d)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
     return PyLong_FromLong(req.ifr_mtu);
+#else
+    return PyInt_FromLong(req.ifr_mtu);
+#endif
 }
 
 static int pytun_tuntap_set_mtu(PyObject* self, PyObject* value, void* d)
@@ -658,7 +662,11 @@ static PyObject* pytun_tuntap_write(PyObject* self, PyObject* args)
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
     return PyLong_FromSsize_t(written);
+#else
+    return PyInt_FromSsize_t(written);
+#endif
 }
 
 PyDoc_STRVAR(pytun_tuntap_write_doc,
@@ -666,7 +674,11 @@ PyDoc_STRVAR(pytun_tuntap_write_doc,
 
 static PyObject* pytun_tuntap_fileno(PyObject* self)
 {
+#if PY_MAJOR_VERSION >= 3
     return PyLong_FromLong(((pytun_tuntap_t*)self)->fd);
+#else
+    return PyInt_FromLong(((pytun_tuntap_t*)self)->fd);
+#endif
 }
 
 PyDoc_STRVAR(pytun_tuntap_fileno_doc,
