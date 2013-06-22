@@ -684,6 +684,43 @@ static PyObject* pytun_tuntap_fileno(PyObject* self)
 PyDoc_STRVAR(pytun_tuntap_fileno_doc,
 "fileno() -> integer \"file descriptor\"");
 
+static PyObject* pytun_tuntap_persist(PyObject* self, PyObject* args)
+{
+    pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    PyObject* tmp = NULL;
+    int persist;
+    int ret;
+
+    if (!PyArg_ParseTuple(args, "|O!:persist", &PyBool_Type, &tmp))
+    {
+        return NULL;
+    }
+
+    if (tmp == NULL || tmp == Py_True)
+    {
+        persist = 1;
+    }
+    else
+    {
+        persist = 0;
+    }
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = ioctl(tuntap->fd, TUNSETPERSIST, persist);
+    Py_END_ALLOW_THREADS
+    if (ret < 0)
+    {
+        raise_error_from_errno();
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(pytun_tuntap_persist_doc,
+"persist(flag) -> None \"Make the TUN/TAP persistent if flags is True else\n\
+make it non-persistent\"");
+
 static PyMethodDef pytun_tuntap_meth[] =
 {
     {"close", (PyCFunction)pytun_tuntap_close, METH_NOARGS, pytun_tuntap_close_doc},
@@ -692,6 +729,7 @@ static PyMethodDef pytun_tuntap_meth[] =
     {"read", (PyCFunction)pytun_tuntap_read, METH_VARARGS, pytun_tuntap_read_doc},
     {"write", (PyCFunction)pytun_tuntap_write, METH_VARARGS, pytun_tuntap_write_doc},
     {"fileno", (PyCFunction)pytun_tuntap_fileno, METH_NOARGS, pytun_tuntap_fileno_doc},
+    {"persist", (PyCFunction)pytun_tuntap_persist, METH_VARARGS, pytun_tuntap_persist_doc},
     {NULL, NULL, 0, NULL}
 };
 
@@ -742,74 +780,74 @@ PyMODINIT_FUNC initpytun(void)
 #endif
     if (m == NULL)
     {
-        goto fail;
+        goto error;
     }
 
     if (PyType_Ready(&pytun_tuntap_type) != 0)
     {
-        goto fail;
+        goto error;
     }
     Py_INCREF((PyObject*)&pytun_tuntap_type);
     if (PyModule_AddObject(m, "TunTapDevice", (PyObject*)&pytun_tuntap_type) != 0)
     {
         Py_DECREF((PyObject*)&pytun_tuntap_type);
-        goto fail;
+        goto error;
     }
 
     pytun_error_dict = Py_BuildValue("{ss}", "__doc__", pytun_error_doc);
     if (pytun_error_dict == NULL)
     {
-        goto fail;
+        goto error;
     }
     pytun_error = PyErr_NewException("pytun.Error", PyExc_IOError, pytun_error_dict);
     Py_DECREF(pytun_error_dict);
     if (pytun_error == NULL)
     {
-        goto fail;
+        goto error;
     }
     Py_INCREF(pytun_error);
     if (PyModule_AddObject(m, "Error", pytun_error) != 0)
     {
         Py_DECREF(pytun_error);
-        goto fail;
+        goto error;
     }
 
     if (PyModule_AddIntConstant(m, "IFF_TUN", IFF_TUN) != 0)
     {
-        goto fail;
+        goto error;
     }
     if (PyModule_AddIntConstant(m, "IFF_TAP", IFF_TAP) != 0)
     {
-        goto fail;
+        goto error;
     }
 #ifdef IFF_NO_PI
     if (PyModule_AddIntConstant(m, "IFF_NO_PI", IFF_NO_PI) != 0)
     {
-        goto fail;
+        goto error;
     }
 #endif
 #ifdef IFF_ONE_QUEUE
     if (PyModule_AddIntConstant(m, "IFF_ONE_QUEUE", IFF_ONE_QUEUE) != 0)
     {
-        goto fail;
+        goto error;
     }
 #endif
 #ifdef IFF_VNET_HDR
     if (PyModule_AddIntConstant(m, "IFF_VNET_HDR", IFF_VNET_HDR) != 0)
     {
-        goto fail;
+        goto error;
     }
 #endif
 #ifdef IFF_TUN_EXCL
     if (PyModule_AddIntConstant(m, "IFF_TUN_EXCL", IFF_TUN_EXCL) != 0)
     {
-        goto fail;
+        goto error;
     }
 #endif
 
     goto out;
 
-fail:
+error:
 #if PY_MAJOR_VERSION >= 3
     Py_XDECREF(pytun_error);
     Py_XDECREF(m);
