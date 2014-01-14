@@ -243,7 +243,7 @@ static int pytun_tuntap_set_addr(PyObject* self, PyObject* value, void* d)
     strcpy(req.ifr_name, tuntap->name);
     sin = (struct sockaddr_in*)&req.ifr_addr;
     sin->sin_family = AF_INET;
-    if (inet_aton(addr, &sin->sin_addr) < 0)
+    if (inet_aton(addr, &sin->sin_addr) == 0)
     {
         raise_error("Bad IP address");
         ret = -1;
@@ -315,7 +315,7 @@ static int pytun_tuntap_set_dstaddr(PyObject* self, PyObject* value, void* d)
     strcpy(req.ifr_name, tuntap->name);
     sin = (struct sockaddr_in*)&req.ifr_dstaddr;
     sin->sin_family = AF_INET;
-    if (inet_aton(dstaddr, &sin->sin_addr) < 0)
+    if (inet_aton(dstaddr, &sin->sin_addr) == 0)
     {
         raise_error("Bad IP address");
         ret = -1;
@@ -438,7 +438,7 @@ static int pytun_tuntap_set_netmask(PyObject* self, PyObject* value, void* d)
     strcpy(req.ifr_name, tuntap->name);
     sin = (struct sockaddr_in*)&req.ifr_netmask;
     sin->sin_family = AF_INET;
-    if (inet_aton(netmask, &sin->sin_addr) < 0)
+    if (inet_aton(netmask, &sin->sin_addr) == 0)
     {
         raise_error("Bad IP address");
         ret = -1;
