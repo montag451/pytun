@@ -16,10 +16,10 @@ system (e.g on Debian-like distribution check that ``build-essential`` and
 ``python-dev`` are present). There are no dependencies other than the Python
 Standard Library.
 
-Examples
---------
+Documentation
+-------------
 
-NOTE: On most distributions you will need to be root to run these examples.
+NOTE: On most distributions you will need to be root to create TUN/TAP devices.
 
 To create a TUN device::
 
@@ -51,9 +51,26 @@ To read/write to the device, use the methods ``read(size)`` and
     buf = tun.read(tun.mtu)
     tun.write(buf)
 
-When when you are done with a device, close it::
+If the device is a TAP you can also get/set its MAC address::
 
-   tun.close()
+    tap.hwaddr = '\x00\x11\x22\x33\x44\x55'
+    print tap.hwaddr
+
+To make the device persistent::
+
+    tun.persist(True)
+
+To bring up the device::
+
+    tun.up()
+
+To bring down the device::
+
+    tun.down()
+
+To close the device::
+
+    tun.close()
 
 You can also use ``TunTapDevice`` objects with all functions that expect a
 ``fileno()`` method (e.g ``select()``)
