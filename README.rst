@@ -45,12 +45,6 @@ You can get/set some parameters of the device directly::
     tun.netmask = '255.255.255.0'
     tun.mtu = 1500
 
-To read/write to the device, use the methods ``read(size)`` and
-``write(buf)``::
-
-    buf = tun.read(tun.mtu)
-    tun.write(buf)
-
 If the device is a TAP you can also get/set its MAC address::
 
     tap.hwaddr = '\x00\x11\x22\x33\x44\x55'
@@ -67,6 +61,12 @@ To bring up the device::
 To bring down the device::
 
     tun.down()
+
+To read/write to the device, use the methods ``read(size)`` and
+``write(buf)``::
+
+    buf = tun.read(tun.mtu)
+    tun.write(buf)
 
 To close the device::
 
