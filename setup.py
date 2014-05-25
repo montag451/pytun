@@ -8,7 +8,7 @@ setup(name='python-pytun',
       url='https://github.com/montag451/pytun',
       description='Linux TUN/TAP wrapper for Python',
       long_description=open('README.rst').read(),
-      version='2.1',
+      version='2.2',
       ext_modules=[Extension('pytun', ['pytun.c'])],
       classifiers=[
           'Development Status :: 5 - Production/Stable',
