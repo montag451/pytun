@@ -757,7 +757,11 @@ static struct PyModuleDef pytun_module =
     .m_doc = NULL,
     .m_size = -1,
     .m_methods = NULL,
+#if PY_MINOR_VERSION <= 4
     .m_reload = NULL,
+#else
+    .m_slots = NULL,
+#endif
     .m_traverse = NULL,
     .m_clear = NULL,
     .m_free = NULL
