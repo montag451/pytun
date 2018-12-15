@@ -2,9 +2,9 @@ from setuptools import setup, Extension
 
 setup(name='python-pytun',
       author='montag451',
-      author_email='montag451 at laposte.net',
+      author_email='montag451@laposte.net',
       maintainer='montag451',
-      maintainer_email='montag451 at laposte.net',
+      maintainer_email='montag451@laposte.net',
       url='https://github.com/montag451/pytun',
       description='Linux TUN/TAP wrapper for Python',
       long_description=open('README.rst').read(),
