@@ -721,6 +721,33 @@ PyDoc_STRVAR(pytun_tuntap_persist_doc,
 "persist(flag) -> None \"Make the TUN/TAP persistent if flags is True else\n\
 make it non-persistent\"");
 
+static PyObject* pytun_tuntap_setlinktype(PyObject* self, PyObject* args)
+{
+    pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    int ret;
+    int linktype;
+
+    if (!PyArg_ParseTuple(args, "i", &linktype))
+    {
+        return NULL;
+    }
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = ioctl(tuntap->fd, TUNSETLINK, linktype);
+    Py_END_ALLOW_THREADS
+    if (ret < 0)
+    {
+        raise_error_from_errno();
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(pytun_tuntap_setlinktype_doc,
+"setlinktype(link_type) -> None \"Set the link type of the TUN/TAP\n\
+For example: LINK_TYPE_ETHER\"");
+
 static PyMethodDef pytun_tuntap_meth[] =
 {
     {"close", (PyCFunction)pytun_tuntap_close, METH_NOARGS, pytun_tuntap_close_doc},
@@ -730,6 +757,7 @@ static PyMethodDef pytun_tuntap_meth[] =
     {"write", (PyCFunction)pytun_tuntap_write, METH_VARARGS, pytun_tuntap_write_doc},
     {"fileno", (PyCFunction)pytun_tuntap_fileno, METH_NOARGS, pytun_tuntap_fileno_doc},
     {"persist", (PyCFunction)pytun_tuntap_persist, METH_VARARGS, pytun_tuntap_persist_doc},
+    {"setlinktype", (PyCFunction)pytun_tuntap_setlinktype, METH_VARARGS, pytun_tuntap_setlinktype_doc},
     {NULL, NULL, 0, NULL}
 };
 
@@ -824,6 +852,28 @@ PyMODINIT_FUNC initpytun(void)
     {
         goto error;
     }
+
+    if (PyModule_AddIntConstant(m, "IFF_MULTI_QUEUE", IFF_MULTI_QUEUE) != 0)
+    {
+        goto error;
+    }
+
+    if (PyModule_AddIntConstant(m, "LINK_TYPE_ETHER", ARPHRD_ETHER) != 0)
+    {
+        goto error;
+    }
+
+    if (PyModule_AddIntConstant(m, "LINK_TYPE_IEEE80211", ARPHRD_IEEE80211) != 0)
+    {
+        goto error;
+    }
+
+    if (PyModule_AddIntConstant(m, "LINK_TYPE_IEEE80211_RADIOTAP", ARPHRD_IEEE80211_RADIOTAP) != 0)
+    {
+        goto error;
+    }
+
+
 #ifdef IFF_NO_PI
     if (PyModule_AddIntConstant(m, "IFF_NO_PI", IFF_NO_PI) != 0)
     {
