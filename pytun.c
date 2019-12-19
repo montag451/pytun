@@ -505,12 +505,47 @@ static int pytun_tuntap_set_mtu(PyObject* self, PyObject* value, void* d)
 
 static PyGetSetDef pytun_tuntap_prop[] =
 {
-    {"name", pytun_tuntap_get_name, NULL, NULL, NULL},
-    {"addr", pytun_tuntap_get_addr, pytun_tuntap_set_addr, NULL, NULL},
-    {"dstaddr", pytun_tuntap_get_dstaddr, pytun_tuntap_set_dstaddr, NULL, NULL},
-    {"hwaddr", pytun_tuntap_get_hwaddr, pytun_tuntap_set_hwaddr, NULL, NULL},
-    {"netmask", pytun_tuntap_get_netmask, pytun_tuntap_set_netmask, NULL, NULL},
-    {"mtu", pytun_tuntap_get_mtu, pytun_tuntap_set_mtu, NULL, NULL},
+    {
+     "name",
+     pytun_tuntap_get_name,
+     NULL,
+     NULL,
+     NULL
+    },
+    {
+     "addr",
+     pytun_tuntap_get_addr,
+     pytun_tuntap_set_addr,
+     NULL,
+     NULL
+    },
+    {
+     "dstaddr",
+     pytun_tuntap_get_dstaddr,
+     pytun_tuntap_set_dstaddr,
+     NULL, NULL
+    },
+    {
+     "hwaddr",
+     pytun_tuntap_get_hwaddr,
+     pytun_tuntap_set_hwaddr,
+     NULL,
+     NULL
+    },
+    {
+     "netmask",
+     pytun_tuntap_get_netmask,
+     pytun_tuntap_set_netmask,
+     NULL,
+     NULL
+    },
+    {
+     "mtu",
+     pytun_tuntap_get_mtu,
+     pytun_tuntap_set_mtu,
+     NULL,
+     NULL
+    },
     {NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -529,7 +564,8 @@ static PyObject* pytun_tuntap_close(PyObject* self)
 }
 
 PyDoc_STRVAR(pytun_tuntap_close_doc,
-"close() -> None. Close the device.");
+"close() -> None.\n\
+Close the device.");
 
 static PyObject* pytun_tuntap_up(PyObject* self)
 {
@@ -555,7 +591,8 @@ static PyObject* pytun_tuntap_up(PyObject* self)
 }
 
 PyDoc_STRVAR(pytun_tuntap_up_doc,
-"up() -> None. Bring up the device.");
+"up() -> None.\n\
+Bring up the device.");
 
 static PyObject* pytun_tuntap_down(PyObject* self)
 {
@@ -581,7 +618,8 @@ static PyObject* pytun_tuntap_down(PyObject* self)
 }
 
 PyDoc_STRVAR(pytun_tuntap_down_doc,
-"down() -> None. Bring down the device.");
+"down() -> None.\n\
+Bring down the device.");
 
 static PyObject* pytun_tuntap_read(PyObject* self, PyObject* args)
 {
@@ -670,7 +708,8 @@ static PyObject* pytun_tuntap_write(PyObject* self, PyObject* args)
 }
 
 PyDoc_STRVAR(pytun_tuntap_write_doc,
-"write(str) -> number of bytes written. Write str to device.");
+"write(str) -> number of bytes written.\n\
+Write str to device.");
 
 static PyObject* pytun_tuntap_fileno(PyObject* self)
 {
@@ -682,7 +721,7 @@ static PyObject* pytun_tuntap_fileno(PyObject* self)
 }
 
 PyDoc_STRVAR(pytun_tuntap_fileno_doc,
-"fileno() -> integer \"file descriptor\"");
+"fileno() -> integer \"file descriptor\".");
 
 static PyObject* pytun_tuntap_persist(PyObject* self, PyObject* args)
 {
@@ -718,23 +757,108 @@ static PyObject* pytun_tuntap_persist(PyObject* self, PyObject* args)
 }
 
 PyDoc_STRVAR(pytun_tuntap_persist_doc,
-"persist(flag) -> None \"Make the TUN/TAP persistent if flags is True else\n\
-make it non-persistent\"");
+"persist(flag) -> None.\n\
+Make the TUN/TAP persistent if flags is True else\n\
+make it non-persistent.");
+
+#ifdef IFF_MULTI_QUEUE
+static PyObject* pytun_tuntap_mq_attach(PyObject* self, PyObject* args)
+{
+    pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
+    PyObject* tmp = NULL;
+    struct ifreq req;
+    int ret;
+
+    if (!PyArg_ParseTuple(args, "|O!:attach", &PyBool_Type, &tmp))
+    {
+        return NULL;
+    }
+
+    memset(&req, 0, sizeof(req));
+    if (tmp == NULL || tmp == Py_True)
+    {
+        req.ifr_flags = IFF_ATTACH_QUEUE;
+    }
+    else
+    {
+        req.ifr_flags = IFF_DETACH_QUEUE;
+    }
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = ioctl(tuntap->fd, TUNSETQUEUE, &req);
+    Py_END_ALLOW_THREADS
+    if (ret < 0)
+    {
+        raise_error_from_errno();
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyDoc_STRVAR(pytun_tuntap_mq_attach_doc,
+"mq_attach(flag) -> None.\n\
+Enable the queue if flags is True else\n\
+disable the queue.");
+#endif
 
 static PyMethodDef pytun_tuntap_meth[] =
 {
-    {"close", (PyCFunction)pytun_tuntap_close, METH_NOARGS, pytun_tuntap_close_doc},
-    {"up", (PyCFunction)pytun_tuntap_up, METH_NOARGS, pytun_tuntap_up_doc},
-    {"down", (PyCFunction)pytun_tuntap_down, METH_NOARGS, pytun_tuntap_down_doc},
-    {"read", (PyCFunction)pytun_tuntap_read, METH_VARARGS, pytun_tuntap_read_doc},
-    {"write", (PyCFunction)pytun_tuntap_write, METH_VARARGS, pytun_tuntap_write_doc},
-    {"fileno", (PyCFunction)pytun_tuntap_fileno, METH_NOARGS, pytun_tuntap_fileno_doc},
-    {"persist", (PyCFunction)pytun_tuntap_persist, METH_VARARGS, pytun_tuntap_persist_doc},
+    {
+     "close",
+     (PyCFunction)pytun_tuntap_close,
+     METH_NOARGS,
+     pytun_tuntap_close_doc
+    },
+    {
+     "up",
+     (PyCFunction)pytun_tuntap_up,
+     METH_NOARGS,
+     pytun_tuntap_up_doc
+    },
+    {
+     "down",
+     (PyCFunction)pytun_tuntap_down,
+     METH_NOARGS,
+     pytun_tuntap_down_doc
+    },
+    {
+     "read",
+     (PyCFunction)pytun_tuntap_read,
+     METH_VARARGS,
+     pytun_tuntap_read_doc
+    },
+    {
+     "write",
+     (PyCFunction)pytun_tuntap_write,
+     METH_VARARGS,
+     pytun_tuntap_write_doc
+    },
+    {
+     "fileno",
+     (PyCFunction)pytun_tuntap_fileno,
+     METH_NOARGS,
+     pytun_tuntap_fileno_doc
+    },
+    {
+     "persist",
+     (PyCFunction)pytun_tuntap_persist,
+     METH_VARARGS,
+     pytun_tuntap_persist_doc
+    },
+#ifdef IFF_MULTI_QUEUE
+    {
+     "mq_attach",
+     (PyCFunction)pytun_tuntap_mq_attach,
+     METH_VARARGS,
+     pytun_tuntap_mq_attach_doc
+    },
+#endif
     {NULL, NULL, 0, NULL}
 };
 
 PyDoc_STRVAR(pytun_tuntap_doc,
-"TunTapDevice(name='', flags=IFF_TUN, dev='/dev/net/tun') -> TUN/TAP device object");
+"TunTapDevice(name='', flags=IFF_TUN, dev='/dev/net/tun') -> TUN/TAP device object.");
 
 static PyTypeObject pytun_tuntap_type =
 {
@@ -844,6 +968,12 @@ PyMODINIT_FUNC initpytun(void)
 #endif
 #ifdef IFF_TUN_EXCL
     if (PyModule_AddIntConstant(m, "IFF_TUN_EXCL", IFF_TUN_EXCL) != 0)
+    {
+        goto error;
+    }
+#endif
+#ifdef IFF_MULTI_QUEUE
+    if (PyModule_AddIntConstant(m, "IFF_MULTI_QUEUE", IFF_MULTI_QUEUE) != 0)
     {
         goto error;
     }
