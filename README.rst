@@ -62,6 +62,12 @@ To bring down the device::
 
     tun.down()
 
+To enable/disable the queue associated with the device (works only if
+it has been created with IFF_MULTI_QUEUE)::
+
+    tun.mq_attach() # enable the queue
+    tun.mq_attach(False) # disable the queue
+
 To read/write to the device, use the methods ``read(size)`` and
 ``write(buf)``::
 
