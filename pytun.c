@@ -684,7 +684,7 @@ static PyObject* pytun_tuntap_write(PyObject* self, PyObject* args)
 {
     pytun_tuntap_t* tuntap = (pytun_tuntap_t*)self;
     char* buf;
-    int len;
+    Py_ssize_t len;
     ssize_t written;
 
     if (!PyArg_ParseTuple(args, "s#:write", &buf, &len))
