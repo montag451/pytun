@@ -11,7 +11,7 @@ Installation and Dependencies
 Install ``pytun`` with ``pip install python-pytun`` or `download this archive
 <https://github.com/montag451/pytun/zipball/v2.3.0>`_, decompress it and
 execute ``python setup.py install``. As ``pytun`` is a C module you will need a
-compiler (e.g GCC) and the Python developpement headers installed on your
+compiler (e.g GCC) and the Python development headers installed on your
 system (e.g on Debian-like distribution check that ``build-essential`` and
 ``python-dev`` are present). There are no dependencies other than the Python
 Standard Library.
