@@ -1,4 +1,4 @@
-Linux TUN/TAP wrapper for Python
+Linux & Darwin TUN/TAP wrapper for Python
 ================================
 
 ``pytun`` is a Python module which let you create TUN/TAP device very easily.
