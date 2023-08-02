@@ -14,6 +14,8 @@
 #include <linux/if_tun.h>
 #include <arpa/inet.h>
 
+#include "common.h"
+
 #ifndef PyVarObject_HEAD_INIT
 #define PyVarObject_HEAD_INIT(type, size) \
     PyObject_HEAD_INIT(type) size,
@@ -64,14 +66,6 @@ static int if_ioctl(int cmd, struct ifreq* req)
 
     return ret;
 }
-
-struct pytun_tuntap
-{
-    PyObject_HEAD
-    int fd;
-    char name[IFNAMSIZ];
-};
-typedef struct pytun_tuntap pytun_tuntap_t;
 
 static PyObject* pytun_tuntap_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 {
