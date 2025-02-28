@@ -18,6 +18,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels
           path: ./wheelhouse/*.whl
 
   build_legacy_wheels:
@@ -35,6 +36,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: legacy-wheels
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -48,4 +50,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: sdist
           path: dist/*.tar.gz
